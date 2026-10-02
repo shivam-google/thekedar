@@ -1,3 +1,5 @@
+import { queryAll } from './queryAll'
+import { coordinatePayload } from '../utils/location'
 import { supabase } from './supabaseClient'
 import { resolveMachineImages } from './machineImageService'
 
@@ -13,6 +15,8 @@ const machineSelect = `
   price_unit,
   location,
   city,
+  latitude,
+  longitude,
   state,
   operator_available,
   delivery_available,
@@ -34,6 +38,8 @@ const machineMarketplaceSelect = `
   price,
   price_unit,
   city,
+  latitude,
+  longitude,
   state,
   operator_available,
   delivery_available,
@@ -53,8 +59,7 @@ const serviceError = (error, action = 'load') => {
 }
 
 export async function fetchMachines() {
-  const { data, error } = await supabase.from('machines').select(machineMarketplaceSelect).order('created_at', { ascending: false })
-  if (error) throw serviceError(error)
+  const data = await queryAll(() => supabase.from('machines').select(machineMarketplaceSelect).eq('status', 'ACTIVE').neq('availability_status', 'UNAVAILABLE').order('created_at', { ascending: false }).order('id'))
   return Promise.all((data || []).map(resolveMachineImages))
 }
 
@@ -65,13 +70,40 @@ export async function fetchMachineById(machineId) {
 }
 
 export async function createMachine(machine) {
-  const { data, error } = await supabase.from('machines').insert(machine).select(machineSelect).single()
+  const { data, error } = await supabase.from('machines').insert({ ...machine, ...coordinatePayload(machine) }).select(machineSelect).single()
   if (error) throw serviceError(error, 'create')
   return data
 }
 
 export async function createMachineListing(machine, files = []) {
+  validateImages(files)
   const createdMachine = await createMachine(machine)
+  return attachMachineImages(createdMachine, files)
+}
+
+function validateImages(files, existingCount = 0) {
+  if (existingCount + files.length > 5) throw new Error('A machine can have up to five images.')
+  if (files.some((file) => !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024)) throw new Error('Choose JPG, PNG, or WebP images up to 5 MB each.')
+}
+
+export async function getOwnedMachine(id) {
+  const { data: auth } = await supabase.auth.getUser()
+  if (!auth.user) throw new Error('Please log in to edit this machine.')
+  const { data, error } = await supabase.from('machines').select(machineSelect).eq('id', id).eq('owner_id', auth.user.id).single()
+  if (error) throw new Error('Machine not found or you do not own it.')
+  return data
+}
+
+export async function updateMachineListing(id, machine, files = []) {
+  const existing = await getOwnedMachine(id)
+  validateImages(files, existing.machine_images?.length || 0)
+  const { owner_id: _owner, status: _status, ...details } = machine
+  const { data, error } = await supabase.from('machines').update({ ...details, ...coordinatePayload(machine) }).eq('id', id).eq('owner_id', existing.owner_id).select(machineSelect).single()
+  if (error) throw serviceError(error, 'create')
+  return attachMachineImages(data, files)
+}
+
+async function attachMachineImages(createdMachine, files) {
   if (!files.length) return createdMachine
 
   const bucket = supabase.storage.from('machine-images')

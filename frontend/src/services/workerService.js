@@ -1,12 +1,12 @@
+import { coordinatePayload } from '../utils/location'
 import { supabase } from './supabaseClient'
 
-const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { apiBaseUrl } from './apiConfig'
 
 async function request(path, options = {}) {
   const { data } = await supabase.auth.getSession()
   const token = data.session?.access_token
-  if (!token) throw new Error('Authentication required')
-  const response = await fetch(`${apiBaseUrl}${path}`, { ...options, headers: { ...options.headers, Authorization: `Bearer ${token}` } })
+  const response = await fetch(`${apiBaseUrl}${path}`, { ...options, headers: { ...options.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) } })
   if (!response.ok) throw new Error(response.status === 404 ? 'Worker not found' : 'Unable to load workers')
   return response.json()
 }
@@ -41,8 +41,8 @@ export async function getCurrentWorkerProfile() {
   return data
 }
 
-export async function saveWorkerProfile({ userId, skill, experience_years, daily_wage, description, availability_status, city, state }) {
-  const payload = { user_id: userId, skill: skill.trim(), experience_years: Number(experience_years), daily_wage: Number(daily_wage), description: description.trim() || null, availability_status, city: city.trim(), state: state.trim() }
+export async function saveWorkerProfile({ userId, skill, experience_years, daily_wage, description, availability_status, city, state, latitude, longitude }) {
+  const payload = { ...coordinatePayload({ latitude, longitude }), user_id: userId, skill: skill.trim(), experience_years: Number(experience_years), daily_wage: Number(daily_wage), description: description.trim() || null, availability_status, city: city.trim(), state: state.trim() }
   const { data, error } = await supabase.from('worker_profiles').upsert(payload, { onConflict: 'user_id' }).select().single()
   if (error) {
     if (error.code === '42501') throw new Error('You do not have permission to edit this worker profile.')

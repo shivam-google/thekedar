@@ -1,7 +1,7 @@
 import { supabase } from './supabaseClient'
 import { requestReviewNotification } from './notificationService'
 
-const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { apiBaseUrl } from './apiConfig'
 const reviewFields = 'id, rating, comment, created_at'
 
 async function requireUser() {
@@ -33,7 +33,7 @@ export async function submitBookingReview({ bookingId, rating, comment = '' }) {
     supabase.from('bookings').select('id, customer_id, provider_id, status').eq('id', bookingId).maybeSingle(),
   ])
   if (profileError || bookingError || !booking) throw new Error('Unable to verify this completed booking.')
-  if (!['customer', 'contractor'].includes(profile?.role) || booking.customer_id !== user.id) throw new Error('Only the customer or contractor who made this booking can review it.')
+  if (booking.customer_id !== user.id) throw new Error('Only the account that made this booking can review it.')
   if (booking.status !== 'COMPLETED') throw new Error('Reviews are available only after a booking is completed.')
   if (booking.provider_id === user.id) throw new Error('You cannot review your own listing.')
 

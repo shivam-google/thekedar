@@ -9,6 +9,8 @@ const friendlyError = (error) => {
   if (message.includes('invalid login credentials')) return new Error('Incorrect email or password.')
   if (message.includes('user already registered')) return new Error('This email is already registered.')
   if (message.includes('invalid email')) return new Error('Enter a valid email address.')
+  if (error?.status === 429 || message.includes('rate limit')) return new Error('Too many requests. Please wait before trying again.')
+  if (message.includes('email not confirmed')) return new Error('Confirm your email before logging in.')
   if (message.includes('password')) return new Error('Password must be at least 8 characters.')
   if (message.includes('fetch') || message.includes('network')) return new Error('Network error. Check your connection and try again.')
   return new Error('Something went wrong. Please try again.')
@@ -21,18 +23,20 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let active = true
+    let profileRequest = 0
 
     const loadProfile = async (sessionUser) => {
+      const request = ++profileRequest
       if (!sessionUser) {
-        if (active) setProfile(null)
+        if (active && request === profileRequest) setProfile(null)
         return
       }
 
       try {
         const nextProfile = await getProfile(sessionUser.id)
-        if (active) setProfile(nextProfile)
+        if (active && request === profileRequest) setProfile(nextProfile)
       } catch {
-        if (active) setProfile(null)
+        if (active && request === profileRequest) setProfile(null)
       }
     }
 
@@ -40,11 +44,13 @@ export function AuthProvider({ children }) {
       if (!active) return
       setUser(data.session?.user || null)
       return loadProfile(data.session?.user)
-    }).finally(() => active && setLoading(false))
+    }).catch(() => { if (active) { setUser(null); setProfile(null) } }).finally(() => active && setLoading(false))
 
     const { data: listener } = onAuthStateChange((_event, session) => {
+      if (!active) return
       setUser(session?.user || null)
-      loadProfile(session?.user)
+      // The SDK holds an auth lock here; defer API calls until it is released.
+      setTimeout(() => { if (active) loadProfile(session?.user) }, 0)
     })
 
     return () => {

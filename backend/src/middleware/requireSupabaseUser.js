@@ -17,3 +17,7 @@ export async function requireSupabaseUser(request, response, next) {
     return response.status(401).json({ success: false, message: 'Unauthorized' })
   }
 }
+
+export function optionalSupabaseUser(request, response, next) {
+  return request.headers.authorization ? requireSupabaseUser(request, response, next) : next()
+}

@@ -1,0 +1,71 @@
+.materials-page, .material-profile-page {
+  max-width: 1320px; min-height: 680px; margin: 0 auto; padding: 78px 32px 110px;
+}
+.material-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; padding-bottom: 43px; border-bottom: 1px solid var(--line); }
+.material-heading h1, .material-detail-copy h1 { margin-bottom: 15px; color: var(--navy); font-family: var(--display); font-size: clamp(46px, 6vw, 78px); letter-spacing: -.065em; line-height: .94; }
+.material-heading p:last-child { max-width: 470px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+.material-toolbar { display: grid; gap: 16px; padding: 28px 0; border-bottom: 1px solid var(--line); }
+.material-search { display: flex; align-items: center; gap: 11px; padding: 15px; background: var(--paper); border: 1px solid #e1ddd3; border-radius: 3px 13px 13px 13px; }
+.material-search svg { flex-shrink: 0; color: var(--orange); }
+.material-search input { min-width: 0; width: 100%; color: var(--navy); background: transparent; outline: none; font-size: 14px; }
+.material-filter-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.material-filter-row select, .material-filter-row input { width: 100%; min-width: 0; min-height: 44px; padding: 0 10px; color: #52616a; background: var(--paper); border: 1px solid #d8ddd9; border-radius: 2px 9px 9px 9px; font-size: 12px; }
+.material-toolbar :is(input, select):focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+.material-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; padding-top: 32px; }
+.material-card { min-width: 0; overflow: hidden; background: var(--paper); border: 1px solid #e2ddd3; border-radius: 3px 27px 3px 27px; transition: transform .2s ease, box-shadow .2s ease; }
+.material-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(20,35,51,.08); }
+.material-card-media > .status-badge { position: absolute; top: 14px; left: 14px; z-index: 1; }
+.material-status-AVAILABLE { color: #377b58; background: #d9ecdf; }
+.material-status-BOOKED { color: #8d6531; background: #f6e7c7; }
+.material-status-UNAVAILABLE { color: #8d5148; background: #f5dcd7; }
+.material-card-body { padding: 22px; }
+.material-card-body .eyebrow { margin-bottom: 8px; }
+.material-title-row { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.material-title-row h2 { margin: 0; color: var(--navy); font-size: 21px; letter-spacing: -.035em; overflow-wrap: anywhere; }
+.material-title-row > span { flex-shrink: 0; color: var(--navy); text-align: right; }
+.material-title-row strong, .material-title-row small { display: block; }
+.material-title-row strong { font-size: 17px; }
+.material-title-row small { margin-top: 4px; color: var(--muted); font-size: 11px; }
+.material-meta { display: grid; gap: 8px; margin: 17px 0; padding: 13px 0; color: var(--muted); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 12px; }
+.material-meta span { display: flex; align-items: center; gap: 6px; }
+.material-meta svg { flex-shrink: 0; color: var(--orange); }
+.material-card-body > p:not(.eyebrow) { min-height: 40px; margin-bottom: 18px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.material-state { min-height: 420px; }
+.material-back { display: inline-flex; margin-bottom: 35px; }
+.material-detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 50px; padding: 35px; background: var(--paper); border: 1px solid #e3ded4; border-radius: 3px 36px 3px 36px; }
+.material-detail-media { border-radius: 3px 27px 3px 27px; }
+.material-detail-copy { min-width: 0; padding: 15px 0; }
+.material-detail-copy h1 { font-size: clamp(38px, 5vw, 64px); overflow-wrap: anywhere; }
+.material-detail-location { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 13px; }
+.material-detail-price { display: flex; align-items: baseline; gap: 8px; padding: 18px 0; border-block: 1px solid var(--line); }
+.material-detail-price strong { color: var(--navy); font-size: 28px; }
+.material-detail-price span { color: var(--muted); font-size: 12px; }
+.material-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; margin: 27px 0; }
+.material-facts div { display: grid; gap: 7px; }
+.material-facts small { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+.material-facts strong { color: var(--navy); font-size: 13px; overflow-wrap: anywhere; }
+.material-detail-description { color: var(--muted); font-size: 14px; line-height: 1.7; }
+.material-request-form { margin-top: 28px; padding: 24px; background: #f7f4ed; border: 1px solid #e2ddd3; border-radius: 3px 24px 3px 24px; }
+.material-request-form h2 { margin: 0 0 18px; color: var(--navy); font-family: var(--display); font-size: 28px; }
+.material-profile-page { display: grid; grid-template-columns: .65fr 1.35fr; gap: 70px; align-items: start; }
+.material-form { min-width: 0; padding: 34px 38px; background: var(--paper); border: 1px solid #e3ded4; border-radius: 3px 35px 3px 35px; }
+@media (max-width: 1050px) {
+  .material-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .material-filter-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .material-detail { gap: 25px; }
+}
+@media (max-width: 760px) {
+  .materials-page, .material-profile-page { padding: 58px 18px 80px; }
+  .material-heading { display: block; }
+  .material-heading h1 { font-size: 51px; }
+  .material-heading .button { margin-top: 25px; }
+  .material-filter-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .material-filter-row select:last-child { grid-column: 1 / -1; }
+  .material-grid { grid-template-columns: 1fr; }
+  .material-detail { display: block; padding: 20px; }
+  .material-detail-copy { padding-top: 30px; }
+  .material-facts { grid-template-columns: 1fr; }
+  .material-profile-page { display: block; }
+  .material-profile-page .form-heading { position: static; margin-bottom: 42px; }
+  .material-form { padding: 25px 20px; }
+}

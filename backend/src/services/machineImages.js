@@ -2,11 +2,11 @@ import { getSupabaseAdminClient } from '../config/supabase.js'
 
 const signedUrlLifetime = 300
 
-export async function createMachineImageSignedUrl({ machineId, imageId, userId }) {
-  const admin = getSupabaseAdminClient()
+export async function createMachineImageSignedUrl({ machineId, imageId, userId, client }) {
+  const admin = client || getSupabaseAdminClient()
   const { data: machine, error: machineError } = await admin
     .from('machines')
-    .select('id, owner_id, status')
+    .select('id, owner_id, status, availability_status')
     .eq('id', machineId)
     .maybeSingle()
 
@@ -14,7 +14,13 @@ export async function createMachineImageSignedUrl({ machineId, imageId, userId }
   if (!machine) return { kind: 'not_found' }
 
   const isOwner = machine.owner_id === userId
-  if (!isOwner && machine.status !== 'ACTIVE') return { kind: 'forbidden' }
+  const publiclyVisible = machine.status === 'ACTIVE' && machine.availability_status !== 'UNAVAILABLE'
+  if (!isOwner && !publiclyVisible) {
+    if (!userId) return { kind: 'forbidden' }
+    const { data: profile, error } = await admin.from('profiles').select('role').eq('id', userId).maybeSingle()
+    if (error) throw new Error('Unable to verify image access')
+    if (profile?.role !== 'admin') return { kind: 'forbidden' }
+  }
 
   const { data: image, error: imageError } = await admin
     .from('machine_images')
@@ -25,7 +31,7 @@ export async function createMachineImageSignedUrl({ machineId, imageId, userId }
 
   if (imageError) throw new Error('Unable to verify image access')
   if (!image) return { kind: 'not_found' }
-  if (!image.storage_path.startsWith(`${machineId}/`)) return { kind: 'forbidden' }
+  if (!image.storage_path?.startsWith(`${machineId}/`)) return { kind: 'forbidden' }
 
   const { data: signedImage, error: signedUrlError } = await admin
     .storage

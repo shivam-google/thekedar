@@ -1,15 +1,14 @@
 import { supabase } from './supabaseClient'
 
-const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { apiBaseUrl } from './apiConfig'
 
 export async function getMachineImageUrl(machineId, imageId) {
   const { data: sessionData } = await supabase.auth.getSession()
   const accessToken = sessionData.session?.access_token
-  if (!accessToken) return null
 
   try {
     const response = await fetch(`${apiBaseUrl}/api/machines/${machineId}/images/${imageId}/signed-url`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     })
     if (!response.ok) return null
     const result = await response.json()

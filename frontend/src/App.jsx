@@ -48,6 +48,7 @@ function App() {
       <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       <Route path="/machines" element={<Machines />} />
       <Route path="/machines/new" element={<ProtectedRoute><NewMachine /></ProtectedRoute>} />
+      <Route path="/machines/:id/edit" element={<ProtectedRoute><NewMachine /></ProtectedRoute>} />
       <Route path="/machines/:id" element={<MachineDetails />} />
       <Route path="/workers" element={<Workers />} />
       <Route path="/workers/profile" element={<ProtectedRoute><RoleGuard allowedRoles={['worker']}><WorkerProfile /></RoleGuard></ProtectedRoute>} />

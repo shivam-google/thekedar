@@ -18,7 +18,7 @@ begin
   requested_role := new.raw_user_meta_data ->> 'role';
   requested_name := trim(new.raw_user_meta_data ->> 'full_name');
 
-  if requested_role not in (
+  if coalesce(requested_role, '') not in (
     'customer',
     'contractor',
     'worker',

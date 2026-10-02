@@ -77,7 +77,7 @@ async function ensureActiveProjectCart(user) {
 export async function addMachineToCart(machine) {
   if (!machine?.id) throw new Error('A machine is required.')
   const user = await requireUser()
-  if (machine.status !== 'ACTIVE' || machine.availability_status === 'UNAVAILABLE') throw new Error('This machine is not currently available.')
+  if (machine.status !== 'ACTIVE' || machine.availability_status !== 'AVAILABLE') throw new Error('This machine is not currently available.')
   const cart = await ensureActiveProjectCart(user)
   const existing = cart.items.find((item) => item.item_type === 'MACHINE' && item.item_id === machine.id)
   if (existing) {

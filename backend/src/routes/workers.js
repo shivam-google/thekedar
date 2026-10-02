@@ -1,13 +1,13 @@
 import { Router } from 'express'
-import { requireSupabaseUser } from '../middleware/requireSupabaseUser.js'
 import { getPublicWorker, listPublicWorkers } from '../services/workerMarketplace.js'
 
 const router = Router()
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const allowedAvailability = new Set(['available', 'unavailable', 'working'])
 
-router.get('/workers', requireSupabaseUser, async (request, response) => {
+router.get('/workers', async (request, response) => {
   const { search = '', skill = '', city = '', state = '', availability = '', sort = 'newest' } = request.query
+  if ([search, skill, city, state, availability, sort].some((value) => typeof value !== 'string' || value.length > 120)) return response.status(400).json({ success: false, message: 'Invalid filters' })
   if (availability && !allowedAvailability.has(availability)) return response.status(400).json({ success: false, message: 'Invalid availability filter' })
   if (sort !== 'newest' && sort !== 'experience') return response.status(400).json({ success: false, message: 'Invalid sort option' })
 
@@ -19,7 +19,7 @@ router.get('/workers', requireSupabaseUser, async (request, response) => {
   }
 })
 
-router.get('/workers/:id', requireSupabaseUser, async (request, response) => {
+router.get('/workers/:id', async (request, response) => {
   if (!uuidPattern.test(request.params.id)) return response.status(404).json({ success: false, message: 'Worker not found' })
   try {
     const worker = await getPublicWorker(request.params.id)

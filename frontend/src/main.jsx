@@ -7,6 +7,7 @@ import { ProjectCartProvider } from './context/ProjectCartContext'
 import './index.css'
 import './styles/worker-request.css'
 import './styles/tanker.css'
+import './styles/materials.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
