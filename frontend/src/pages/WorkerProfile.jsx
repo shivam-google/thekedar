@@ -1,0 +1,25 @@
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import Footer from '../components/Footer'
+import Navbar from '../components/Navbar'
+import { Icon } from '../components/Icons'
+import { useAuth } from '../context/AuthContext'
+import { getCurrentWorkerProfile, saveWorkerProfile } from '../services/workerService'
+
+const initialForm = { skill: '', experience_years: '', daily_wage: '', description: '', availability_status: 'available', city: '', state: '' }
+
+export default function WorkerProfile() {
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [form, setForm] = useState(initialForm)
+  const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  useEffect(() => { let active = true; getCurrentWorkerProfile().then((profile) => profile && active && setForm({ skill: profile.skill || '', experience_years: profile.experience_years ?? '', daily_wage: profile.daily_wage ?? '', description: profile.description || '', availability_status: profile.availability_status || 'available', city: profile.city || '', state: profile.state || '' })).catch(() => active && setError('Unable to load your worker profile. Please try again.')).finally(() => active && setLoading(false)); return () => { active = false } }, [])
+  const update = (name, value) => setForm((current) => ({ ...current, [name]: value }))
+  const submit = async (event) => { event.preventDefault(); setError(''); setBusy(true); try { await saveWorkerProfile({ userId: user.id, ...form, experience_years: Number(form.experience_years), daily_wage: Number(form.daily_wage) }); navigate('/workers', { replace: true }) } catch (saveError) { setError(saveError.message) } finally { setBusy(false) } }
+  return <div className="site-page"><Navbar /><main className="worker-profile-page"><div className="form-heading"><Link to="/workers" className="text-link text-link-dark"><Icon name="arrow" size={16} className="back-arrow" /> Back to workers</Link><p className="eyebrow eyebrow-orange">Worker workspace</p><h1>Your work, <em>clearly.</em></h1><p>Create or update the professional information customers and contractors can discover.</p></div>{loading ? <div className="marketplace-state"><Icon name="loader" size={22} /><p>Loading your worker profile...</p></div> : <form className="worker-profile-form" onSubmit={submit}><div className="form-section"><div className="form-section-heading"><span>01</span><div><h2>Professional details</h2><p>Tell people what you do and where you work.</p></div></div><div className="form-fields two-column"><Field label="Primary skill or trade" required value={form.skill} onChange={(value) => update('skill', value)} placeholder="e.g. Mason, Electrician, Site Helper" /><Field label="Experience in years" required type="number" min="0" step="0.01" value={form.experience_years} onChange={(value) => update('experience_years', value)} placeholder="0" /><Field label="Daily wage" required type="number" min="0" step="0.01" value={form.daily_wage} onChange={(value) => update('daily_wage', value)} placeholder="0" /><SelectField label="Availability" value={form.availability_status} onChange={(value) => update('availability_status', value)} options={['available', 'working', 'unavailable']} /><Field label="City" required value={form.city} onChange={(value) => update('city', value)} placeholder="City" /><Field label="State" required value={form.state} onChange={(value) => update('state', value)} placeholder="State" /></div><label className="form-label">Description<textarea rows="5" value={form.description} onChange={(event) => update('description', event.target.value)} placeholder="Describe your experience and the work you handle." /></label></div><div className="worker-profile-note"><Icon name="shield" size={19} /><p>Your daily wage is stored for booking calculations but is not shown in the public worker marketplace.</p></div>{error && <p className="form-error" role="alert">{error}</p>}{saved && <p className="machine-notice" role="status">Worker profile saved.</p>}<div className="form-actions"><Link to="/workers" className="button button-ghost">Cancel</Link><button type="submit" className="button" disabled={busy}>{busy ? 'Saving profile...' : 'Save profile'} <Icon name="check" size={17} /></button></div></form>}</main><Footer /></div>
+}
+
+function Field({ label, required = false, type = 'text', value, onChange, placeholder, min, step }) { return <label className="form-label">{label}{required && <span className="required-mark"> *</span>}<input required={required} type={type} min={min} step={step} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} /></label> }
+function SelectField({ label, value, onChange, options }) { return <label className="form-label">{label}<select value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option} value={option}>{option.charAt(0).toUpperCase() + option.slice(1)}</option>)}</select></label> }

@@ -1,0 +1,9 @@
+.worker-request-form { margin-top: 30px; padding: 25px; background: #f7f4ed; border: 1px solid #e2ddd3; border-radius: 3px 24px 3px 24px; }
+.request-form-heading h3 { margin: 0 0 7px; color: var(--navy); font-family: var(--display); font-size: 25px; letter-spacing: -.05em; }
+.request-form-heading p:last-child { margin: 0 0 20px; color: var(--orange); font-size: 11px; font-weight: 900; }
+.worker-request-form .form-label { margin-top: 15px; }
+.worker-request-form .booking-date-fields .form-label { margin-top: 0; }
+.worker-estimate { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; padding: 13px 0; color: var(--muted); border-top: 1px solid #ddd8ce; border-bottom: 1px solid #ddd8ce; font-size: 11px; }
+.worker-estimate strong { color: var(--navy); font-size: 17px; }
+.worker-form-loading { color: var(--muted); font-size: 12px; }
+@media (max-width: 760px) { .worker-request-form { padding: 20px; } }

@@ -1,0 +1,30 @@
+.notifications-page { max-width: 1120px; min-height: 680px; margin: 0 auto; padding: 72px 32px 100px; }
+.notifications-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.notifications-heading h1 { margin: 0 0 8px; color: var(--navy); font-family: var(--display); font-size: 44px; }
+.notifications-heading p:last-child { margin: 0; color: var(--muted); font-size: 13px; }
+.notification-list { border-top: 1px solid var(--line); }
+.notification-item { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 16px; align-items: start; padding: 22px 18px; border-bottom: 1px solid var(--line); }
+.notification-item.is-unread { background: rgba(255, 255, 255, .58); }
+.notification-state-mark { width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: #aab2b5; }
+.is-unread .notification-state-mark { background: var(--orange); box-shadow: 0 0 0 4px rgba(232, 111, 50, .12); }
+.notification-content { min-width: 0; }
+.notification-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.notification-title-row h2 { margin: 0; color: var(--navy); font-size: 15px; }
+.notification-type { color: var(--muted); font-size: 10px; text-transform: capitalize; }
+.notification-content > p { margin: 8px 0; color: #56636c; font-size: 13px; line-height: 1.6; }
+.notification-content time { color: var(--muted); font-size: 11px; }
+.notification-booking-link { display: inline-flex; align-items: center; gap: 5px; margin-left: 12px; color: var(--orange); font-size: 11px; font-weight: 800; }
+.notification-read-button { padding: 7px 0; color: var(--orange); background: transparent; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.notification-read-button:disabled { opacity: .55; cursor: wait; }
+.notifications-state { display: flex; min-height: 260px; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); text-align: center; }
+.notifications-state h2, .notifications-state p { margin: 0; }
+.notifications-state h2 { color: var(--navy); font-family: var(--display); font-size: 24px; }
+.notifications-state p { font-size: 13px; }
+@media (max-width: 640px) {
+  .notifications-page { padding: 54px 18px 76px; }
+  .notifications-heading { align-items: start; flex-direction: column; }
+  .notifications-heading h1 { font-size: 36px; }
+  .notification-item { grid-template-columns: 8px minmax(0, 1fr); gap: 12px; padding: 18px 8px; }
+  .notification-read-button { grid-column: 2; justify-self: start; padding-top: 0; }
+  .notification-booking-link { margin: 8px 0 0; }
+}

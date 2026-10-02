@@ -1,0 +1,128 @@
+.booking-review,
+.provider-ratings {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.booking-review h2,
+.provider-ratings h2 {
+  margin-bottom: 12px;
+  color: var(--navy);
+  font-family: var(--display);
+  font-size: 23px;
+}
+
+.review-muted,
+.provider-rating-summary {
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.review-rating-fieldset {
+  margin: 0 0 17px;
+  padding: 0;
+  border: 0;
+}
+
+.review-rating-fieldset legend {
+  margin-bottom: 8px;
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.review-rating-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.review-rating-options label {
+  display: inline-flex;
+  min-width: 48px;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 3px 10px 10px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.review-rating-options label.is-selected {
+  color: var(--orange);
+  border-color: var(--orange);
+  background: #fff7f0;
+}
+
+.review-rating-options input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.review-rating-options label:focus-within {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.review-comment-label textarea {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px 12px;
+  color: var(--navy);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 3px 10px 10px 10px;
+  resize: vertical;
+}
+
+.review-submitted,
+.provider-review {
+  padding: 15px 0;
+  border-top: 1px solid var(--line);
+}
+
+.review-rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  color: var(--orange);
+}
+
+.review-rating strong {
+  color: var(--navy);
+  font-size: 12px;
+}
+
+.review-submitted > p:not(.review-rating),
+.provider-review > p:not(.review-rating) {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.review-success {
+  color: #377b58 !important;
+  font-weight: 800;
+}
+
+.provider-rating-summary strong {
+  color: var(--navy);
+  font-size: 18px;
+}
+
+.provider-review time {
+  color: var(--muted);
+  font-size: 10px;
+}

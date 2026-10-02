@@ -1,0 +1,17 @@
+.marketplace-image-frame { position: relative; display: block; width: 100%; height: 100%; min-width: 0; overflow: hidden; }
+.marketplace-image-content { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; transition: opacity .14s ease; }
+.marketplace-image-fallback { position: absolute; inset: 0; display: grid; width: 100%; height: 100%; place-items: center; overflow: hidden; color: #6f8580; background: #e1e8e3; }
+.machine-card-media > .marketplace-image-frame { position: absolute; inset: 0; }
+.material-card-media { position: relative; width: 100%; min-height: 160px; aspect-ratio: 16 / 10; overflow: hidden; background: #e1e8e3; }
+.material-card-media > .marketplace-image-frame { position: absolute; inset: 0; }
+.material-detail-media { position: relative; width: 100%; min-height: 320px; max-height: 560px; aspect-ratio: 4 / 3; overflow: hidden; background: #e1e8e3; }
+.material-detail-media > .marketplace-image-frame { position: absolute; inset: 0; }
+.details-image-grid > .marketplace-image-frame { height: 275px; }
+.details-image-grid > .marketplace-image-frame:only-child { grid-column: 1 / -1; height: 550px; }
+.details-image-grid > .marketplace-image-frame .details-placeholder { width: 100%; height: 100%; min-height: 0; }
+.cart-item-image > .marketplace-image-frame { width: 100%; height: 100%; }
+@media (max-width: 760px) {
+  .material-detail-media { min-height: 250px; }
+  .details-image-grid > .marketplace-image-frame { height: 180px; }
+  .details-image-grid > .marketplace-image-frame:only-child { height: 360px; }
+}
