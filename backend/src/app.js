@@ -9,8 +9,15 @@ import workersRouter from './routes/workers.js'
 
 const app = express()
 
-app.use(cors())
-app.use(express.json())
+app.disable('x-powered-by')
+const allowedOrigins = new Set((process.env.CORS_ORIGINS || 'http://localhost:5173').split(',').map((value) => value.trim()).filter(Boolean))
+app.use(cors({ origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)), credentials: false }))
+app.use((_request, response, next) => {
+  response.setHeader('X-Content-Type-Options', 'nosniff')
+  response.setHeader('Cache-Control', 'no-store')
+  next()
+})
+app.use(express.json({ limit: '100kb' }))
 app.use('/api', machineImagesRouter)
 app.use('/api', notificationsRouter)
 app.use('/api', profileImagesRouter)
@@ -47,5 +54,7 @@ app.get('/api/health/db', async (_request, response) => {
     })
   }
 })
+
+app.use('/api', (_request, response) => response.status(404).json({ success: false, message: 'API route not found' }))
 
 export default app

@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient'
 
-const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { apiBaseUrl } from './apiConfig'
 export const notificationsChangedEvent = 'thekedar:notifications-changed'
 
 function notifyChanged() {

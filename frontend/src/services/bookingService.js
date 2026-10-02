@@ -1,3 +1,4 @@
+import { inclusiveDays, estimateRental } from '../utils/booking'
 import { supabase } from './supabaseClient'
 import { getWorker, getWorkerBookingMeta } from './workerService'
 import { requestBookingNotification } from './notificationService'
@@ -46,7 +47,8 @@ export async function createProjectBookingRequests({ cart, startDate, endDate, n
   const user = await requireUser()
   if (!cart?.items?.length) throw new Error('Add equipment to your project before requesting a booking.')
   if (!startDate || !endDate || endDate < startDate) throw new Error('Choose valid start and end dates.')
-  const invalidItem = cart.items.find((item) => item.machine?.status !== 'ACTIVE' || item.machine?.availability_status === 'UNAVAILABLE' || !item.machine?.owner_id)
+  if (cart.items.some((item) => item.machine?.owner_id === user.id)) throw new Error('You cannot book your own listing.')
+  const invalidItem = cart.items.find((item) => item.machine?.status !== 'ACTIVE' || item.machine?.availability_status !== 'AVAILABLE' || !item.machine?.owner_id)
   if (invalidItem) throw new Error('One or more machines are no longer available.')
 
   const rows = cart.items.map((item) => ({
@@ -57,7 +59,7 @@ export async function createProjectBookingRequests({ cart, startDate, endDate, n
     start_date: startDate,
     end_date: endDate,
     quantity: Number(item.quantity || 1),
-    total_price: Number(item.price || item.machine.price || 0) * Number(item.quantity || 1),
+    total_price: estimateRental(item.machine.price, item.quantity || 1, item.machine.price_unit, startDate, endDate),
     customer_note: [cart.project_name, cart.project_location, note.trim()].filter(Boolean).join(' - ') || null,
     status: 'REQUESTED',
   }))
@@ -76,14 +78,15 @@ export async function requestWorkerBooking({ workerProfileId, startDate, endDate
   if (!Number.isFinite(numericQuantity) || numericQuantity <= 0) throw new Error('Enter a valid quantity.')
 
   const worker = await getWorkerBookingMeta(workerProfileId)
-  if (worker.availability_status === 'unavailable') throw new Error('This worker is not currently available.')
-  const { data: duplicates, error: duplicateError } = await supabase.from('bookings').select('id').eq('customer_id', user.id).eq('provider_id', worker.user_id).eq('item_type', 'WORKER').eq('item_id', worker.id).in('status', ['REQUESTED', 'ACCEPTED', 'IN_PROGRESS']).limit(1)
+  if (worker.availability_status !== 'available') throw new Error('This worker is not currently available.')
+  const { data: duplicates, error: duplicateError } = await supabase.from('bookings').select('id').eq('customer_id', user.id).eq('provider_id', worker.provider_id || worker.user_id).eq('item_type', 'WORKER').eq('item_id', worker.id).in('status', ['REQUESTED', 'ACCEPTED', 'IN_PROGRESS']).limit(1)
   if (duplicateError) throw friendlyError(duplicateError)
   if (duplicates?.length) throw new Error('You already have an active request for this worker.')
 
-  const days = Math.floor((new Date(`${endDate}T00:00:00`) - new Date(`${startDate}T00:00:00`)) / 86400000) + 1
+  const days = inclusiveDays(startDate, endDate)
   const totalPrice = Number(worker.daily_wage) * numericQuantity * days
   const providerId = worker.provider_id || worker.user_id
+  if (providerId === user.id) throw new Error('You cannot book your own listing.')
   if (!providerId) throw new Error('This worker is not currently requestable.')
   const { data, error } = await supabase.from('bookings').insert({ customer_id: user.id, provider_id: providerId, item_type: 'WORKER', item_id: worker.id, start_date: startDate, end_date: endDate, quantity: numericQuantity, total_price: totalPrice, customer_note: note.trim() || null, status: 'REQUESTED' }).select(bookingSelect).single()
   if (error) throw friendlyError(error, 'write')
@@ -98,14 +101,14 @@ export async function requestTankerBooking({ tankerId, startDate, endDate, quant
   if (!startDate || !endDate || endDate < startDate) throw new Error('Choose valid start and end dates.')
   const numericQuantity = Number(quantity)
   if (!Number.isFinite(numericQuantity) || numericQuantity <= 0) throw new Error('Enter a valid quantity.')
-  const { data: tanker, error: tankerError } = await supabase.from('tankers').select('id, owner_id, price, availability_status, status').eq('id', tankerId).maybeSingle()
+  const { data: tanker, error: tankerError } = await supabase.from('tankers').select('id, owner_id, price, price_unit, availability_status, status').eq('id', tankerId).maybeSingle()
   if (tankerError || !tanker) throw new Error('Tanker not found.')
-  if (tanker.availability_status === 'UNAVAILABLE' || tanker.status !== 'ACTIVE') throw new Error('This tanker is not currently available.')
+  if (tanker.owner_id === user.id) throw new Error('You cannot book your own listing.')
+  if (tanker.availability_status !== 'AVAILABLE' || tanker.status !== 'ACTIVE') throw new Error('This tanker is not currently available.')
   const { data: duplicates, error: duplicateError } = await supabase.from('bookings').select('id').eq('customer_id', user.id).eq('provider_id', tanker.owner_id).eq('item_type', 'TANKER').eq('item_id', tanker.id).in('status', ['REQUESTED', 'ACCEPTED', 'IN_PROGRESS']).limit(1)
   if (duplicateError) throw friendlyError(duplicateError)
   if (duplicates?.length) throw new Error('You already have an active request for this tanker.')
-  const days = Math.floor((new Date(`${endDate}T00:00:00`) - new Date(`${startDate}T00:00:00`)) / 86400000) + 1
-  const { data, error } = await supabase.from('bookings').insert({ customer_id: user.id, provider_id: tanker.owner_id, item_type: 'TANKER', item_id: tanker.id, start_date: startDate, end_date: endDate, quantity: numericQuantity, total_price: Number(tanker.price) * numericQuantity * days, customer_note: note.trim() || null, status: 'REQUESTED' }).select(bookingSelect).single()
+  const { data, error } = await supabase.from('bookings').insert({ customer_id: user.id, provider_id: tanker.owner_id, item_type: 'TANKER', item_id: tanker.id, start_date: startDate, end_date: endDate, quantity: numericQuantity, total_price: estimateRental(tanker.price, numericQuantity, tanker.price_unit, startDate, endDate), customer_note: note.trim() || null, status: 'REQUESTED' }).select(bookingSelect).single()
   if (error) throw friendlyError(error, 'write')
   await requestBookingNotification(data.id)
   return data
@@ -117,10 +120,13 @@ export async function requestMaterialBooking({ materialId, startDate, endDate, q
   if (!serviceRequesterRoles.includes(requester?.role)) throw new Error('Your account cannot request materials.')
   if (!startDate || !endDate || endDate < startDate) throw new Error('Choose valid start and end dates.')
   const numericQuantity = Number(quantity)
+  if (!Number.isFinite(numericQuantity) || numericQuantity <= 0) throw new Error('Enter a valid quantity.')
   const { data: material, error: materialError } = await supabase.from('materials').select('id, supplier_id, price, quantity_available, availability_status').eq('id', materialId).maybeSingle()
   if (materialError || !material) throw new Error('Material not found.')
-  if (material.availability_status === 'UNAVAILABLE' || Number(material.quantity_available) < numericQuantity) throw new Error('This material is not currently available in that quantity.')
-  const { data: duplicates } = await supabase.from('bookings').select('id').eq('customer_id', user.id).eq('provider_id', material.supplier_id).eq('item_type', 'MATERIAL').eq('item_id', material.id).in('status', ['REQUESTED', 'ACCEPTED', 'IN_PROGRESS']).limit(1)
+  if (material.supplier_id === user.id) throw new Error('You cannot book your own listing.')
+  if (material.availability_status !== 'AVAILABLE' || Number(material.quantity_available) < numericQuantity) throw new Error('This material is not currently available in that quantity.')
+  const { data: duplicates, error: duplicateError } = await supabase.from('bookings').select('id').eq('customer_id', user.id).eq('provider_id', material.supplier_id).eq('item_type', 'MATERIAL').eq('item_id', material.id).in('status', ['REQUESTED', 'ACCEPTED', 'IN_PROGRESS']).limit(1)
+  if (duplicateError) throw friendlyError(duplicateError)
   if (duplicates?.length) throw new Error('You already have an active request for this material.')
   const { data, error } = await supabase.from('bookings').insert({ customer_id: user.id, provider_id: material.supplier_id, item_type: 'MATERIAL', item_id: material.id, start_date: startDate, end_date: endDate, quantity: numericQuantity, total_price: Number(material.price) * numericQuantity, customer_note: note.trim() || null, status: 'REQUESTED' }).select(bookingSelect).single()
   if (error) throw friendlyError(error, 'write')
@@ -164,12 +170,6 @@ export async function getMyBookings() {
 
 export async function getIncomingBookings() {
   const user = await requireUser()
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
-  if (profile?.role === 'worker') {
-    const { data: worker } = await supabase.from('worker_profiles').select('id').eq('user_id', user.id).maybeSingle()
-    if (!worker) return []
-    return attachRelatedItems(await getBookings((query) => query.eq('provider_id', user.id).eq('item_type', 'WORKER').eq('item_id', worker.id)))
-  }
   return attachRelatedItems(await getBookings((query) => query.eq('provider_id', user.id)))
 }
 

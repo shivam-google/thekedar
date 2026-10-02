@@ -18,3 +18,9 @@ npm-debug.log*
 # Operating system
 .DS_Store
 Thumbs.db
+
+# Local deployment and browser test state
+.vercel/
+playwright-report/
+test-results/
+.local/
