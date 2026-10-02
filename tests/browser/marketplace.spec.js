@@ -148,7 +148,7 @@ test('forgot password sends recovery request with the correct redirect', async (
   await page.getByLabel('Email', { exact: true }).fill('customer@example.test')
   await page.getByRole('button', { name: 'Send reset link' }).click()
   await expect(page.getByText('Check your inbox for the password reset link.')).toBeVisible()
-  expect(new URL(recovery.url()).searchParams.get('redirect_to')).toBe('http://127.0.0.1:5179/reset-password')
+  expect(new URL(recovery.url()).searchParams.get('redirect_to')).toBe(`${new URL(page.url()).origin}/reset-password`)
 })
 
 test('reset password ends recovery session and allows login with the new password', async ({ page }) => {
@@ -217,4 +217,19 @@ test('machine upload rejects more than five images before creating a listing', a
   await page.locator('input[type="file"]').setInputFiles(Array.from({ length: 6 }, (_, index) => ({ name: `photo-${index}.png`, mimeType: 'image/png', buffer: Buffer.from('test-image') })))
   await expect(page.getByText('A machine can have up to five images.')).toBeVisible()
   expect(writes).toHaveLength(0)
+})
+
+test('materials uses styled responsive controls and cards', async ({ page }) => {
+  const { errors } = await setup(page, { loggedIn: false })
+  await page.goto('/materials')
+  await expect(page.getByRole('heading', { name: 'Cement stock' })).toBeVisible()
+  expect(await page.locator('.material-heading h1').evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThan(40)
+  expect(await page.locator('.material-grid').evaluate((el) => getComputedStyle(el).display)).toBe('grid')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.getByLabel('Sort materials')).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  await page.locator('.material-card').getByRole('link', { name: 'View details' }).click()
+  await expect(page.getByRole('button', { name: 'Request material' })).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  expect(errors).toEqual([])
 })

@@ -2,6 +2,10 @@
 
 The frontend and Express API can run together in one Vercel project using the root `vercel.json` and `api/index.js`. Supabase remains the database, authentication, and storage backend. A separate API host is optional.
 
+If merging `main` automatically deploys to Vercel, complete the database migration
+and environment setup **before merging**. Code alone cannot supply the owner's
+project credentials, production auth settings, or SMTP configuration.
+
 ## Database
 
 For an existing project, back up the database and run `backend/supabase/multi_service_provider_migration.sql` in Supabase's SQL Editor. It is transactional and safe to re-run. It adds managed-worker ownership and optional listing coordinates, replaces role-specific creation policies, and protects listing and booking integrity. Existing accounts and listings are preserved.
@@ -26,6 +30,17 @@ Import or deploy this checkout with the project root set to the repository root,
 | `VITE_API_URL` | Leave unset for the same-origin API | Yes |
 
 Only the URL and publishable/anon key belong in `VITE_*` values. Changing a `VITE_*` value requires a rebuild. `/api/health` checks the process, while `/api/health/db` checks database connectivity. Production browser API requests use the current site's origin by default.
+
+The Vercel build starts with `scripts/check-production-env.js`. It fails with an
+actionable message if required variables are missing, project URLs disagree,
+legacy JWT keys belong to another project, or a backend secret is supplied as a
+public key. It never prints key values. Both legacy anon/service-role JWTs and
+newer publishable/secret keys are accepted. This checks configuration shape; the
+release verification below still confirms full booking/storage permissions. The
+build also checks each listing table's required columns through the public Data
+API with `limit=0`; it retrieves no listing records. Missing migrations, invalid
+public keys, or an unavailable Supabase project stop the build with a setup
+message instead of publishing broken marketplaces.
 
 For separate hosting, start the API with `npm ci --prefix backend` and `npm start --prefix backend`. Set `VITE_API_URL` to the HTTPS API origin and the backend's `CORS_ORIGINS` to the exact frontend origin. Multiple comma-separated origins are supported. Set `PORT` if required by the API host.
 
