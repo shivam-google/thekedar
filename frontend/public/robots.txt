@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /dashboard
+Disallow: /services
+Disallow: /admin
+Disallow: /machines/new
+Disallow: /machines/*/edit
+Disallow: /workers/profile
+Disallow: /tankers/profile
+Disallow: /materials/profile
+Disallow: /projects
+Disallow: /bookings
+Disallow: /favorites
+Disallow: /notifications
+Disallow: /profile
+
+Sitemap: https://thekedar-51s.pages.dev/sitemap.xml
