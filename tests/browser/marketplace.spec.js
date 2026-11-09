@@ -192,6 +192,27 @@ test('provider dashboard works at mobile width', async ({ page }) => {
   expect(errors).toEqual([])
 })
 
+test('customer, booking, and marketplace screens fit a 320px mobile viewport', async ({ page }) => {
+  const { errors } = await setup(page)
+  await page.setViewportSize({ width: 320, height: 740 })
+  const paths = [
+    '/', '/login', '/signup', '/dashboard', '/services',
+    '/machines', '/machines/machine-1', '/workers', '/workers/worker-1',
+    '/tankers', '/tankers/tanker-1', '/materials', '/materials/material-1',
+    '/bookings', '/bookings/booking-1', '/projects', '/profile', '/notifications',
+  ]
+
+  for (const path of paths) {
+    await page.goto(path)
+    await page.locator('main').first().waitFor()
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      `${path} should fit within a 320px viewport`,
+    ).toBe(true)
+  }
+  expect(errors).toEqual([])
+})
+
 test('guest marketplaces load workers and machine images without a login token', async ({ page }) => {
   const { errors } = await setup(page, { loggedIn: false })
   await page.goto('/workers')

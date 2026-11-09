@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#e86f32" />
+    <title>Offline | TheKedar</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { display: grid; min-height: 100vh; margin: 0; padding: 24px; place-items: center; color: #142333; background: #f3f0e9; font-family: 'Trebuchet MS', Arial, sans-serif; text-align: center; }
+      main { width: min(100%, 440px); padding: 40px 28px; background: #fbfaf6; border: 1px solid #d9ddd9; border-radius: 4px 28px 4px 28px; }
+      .mark { display: grid; width: 52px; height: 52px; margin: 0 auto 24px; place-items: center; color: #e86f32; border: 1px solid #e6b79c; border-radius: 14px 14px 14px 3px; }
+      h1 { margin: 0 0 12px; font-family: Georgia, 'Times New Roman', serif; font-size: 34px; }
+      p { margin: 0 0 24px; color: #65727d; font-size: 15px; line-height: 1.65; }
+      button { min-height: 48px; padding: 0 20px; color: #fff; background: #e86f32; border: 0; border-radius: 3px 14px 14px 14px; font: inherit; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V6m0 0h14l-5 5H4m9 0v9m-4 0h8M18 6v14m-3-6h6" /></svg>
+      </div>
+      <h1>You’re offline</h1>
+      <p>TheKedar needs an internet connection to load current listings, bookings, and account information. Reconnect and try again.</p>
+      <button type="button" onclick="window.location.reload()">Try again</button>
+    </main>
+  </body>
+</html>

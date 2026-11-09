@@ -9,6 +9,13 @@ import './styles/worker-request.css'
 import './styles/tanker.css'
 import './styles/materials.css'
 
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+      .catch((error) => console.error('TheKedar service worker registration failed:', error))
+  }, { once: true })
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>

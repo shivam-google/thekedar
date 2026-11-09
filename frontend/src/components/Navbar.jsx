@@ -3,6 +3,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useProjectCart } from '../context/ProjectCartContext'
 import { Icon } from './Icons'
+import InstallPrompt from './InstallPrompt'
 import { getUnreadNotificationCount, notificationsChangedEvent } from '../services/notificationService'
 
 const links = [
@@ -49,6 +50,7 @@ export default function Navbar() {
       <nav className={`main-nav ${open ? 'is-open' : ''}`} aria-label="Main navigation">
         <div className="nav-links">{links.map(([label, path]) => <NavLink key={path} to={path} end={path === '/'} onClick={close} className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>{label}</NavLink>)}{profile?.role === 'admin' && <NavLink to="/admin" onClick={close} className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Admin</NavLink>}</div>
         <div className="nav-actions">
+          <InstallPrompt />
           {isAuthenticated ? <>
             <NavLink to="/favorites" onClick={close} className="icon-link" aria-label="Favorites" title="Favorites"><Icon name="heart" size={19} /></NavLink>
             <NavLink to="/notifications" onClick={close} className="icon-link cart-nav-link" aria-label={unreadCount ? `Notifications, ${unreadCount} unread` : 'Notifications'} title="Notifications"><Icon name="bell" size={19} />{unreadCount > 0 && <span className="cart-count">{unreadCount > 99 ? '99+' : unreadCount}</span>}</NavLink>

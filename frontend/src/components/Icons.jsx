@@ -8,6 +8,7 @@ const paths = {
   close: <path d="m6 6 12 12M18 6 6 18" />,
   compass: <><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" /></>,
   crane: <path d="M4 20V6m0 0h14l-5 5H4m9 0v9m-4 0h8M18 6v14m-3-6h6" />,
+  download: <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3" />,
   heart: <path d="M20.8 8.8c0 5.4-8.8 10.2-8.8 10.2S3.2 14.2 3.2 8.8A4.8 4.8 0 0 1 12 6.1a4.8 4.8 0 0 1 8.8 2.7Z" />,
   image: <><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8.5" cy="9" r="1.5" /><path d="m21 15-4.5-4.5L7 20" /></>,
   loader: <path d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.4-6.4-2.1 2.1M7.7 16.3l-2.1 2.1m12.8 0-2.1-2.1M7.7 7.7 5.6 5.6" />,
